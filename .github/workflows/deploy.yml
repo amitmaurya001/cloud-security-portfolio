@@ -27,6 +27,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      #checking
+      - name: Print GitHub context
+        run: |
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Ref: $GITHUB_REF"
+
+
       # Step 2 — Configure AWS credentials via OIDC
       # No long-lived access keys — uses GitHub OIDC token
       - name: Configure AWS credentials
