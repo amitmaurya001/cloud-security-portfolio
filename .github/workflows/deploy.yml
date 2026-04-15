@@ -12,11 +12,9 @@ on:
       - main
   workflow_dispatch: # Allow manual trigger
 
-
 permissions:
   id-token: write   # Required for OIDC
   contents: read
-
 
 jobs:
   deploy:
@@ -28,48 +26,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-     #checking
-     # - name: Print GitHub context
-     #   run: |
-     #     echo "Repository: $GITHUB_REPOSITORY"
-     #     echo "Ref: $GITHUB_REF"
-
-     # - name: Debug secret
-     #   run: |
-     #     echo "ROLE=>>${{ secrets.AWS_ROLE_ARN }}<<"
-
       # Step 2 — Configure AWS credentials via OIDC
-      # No long-lived access keys — uses GitHub OIDC token
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
 
-       #Step 3 — Sync files to S3
-       Excludes terraform and github directories
+      # Step 3 — Sync files to S3
       - name: Deploy to S3
-         run: |
-           aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} \
-             --exclude ".git/*" \
-             --exclude ".github/*" \
-             --exclude "terraform/*" \
-             --exclude "README.md" \
-             --exclude "CLAUDE.md" \
-             --exclude "*.tfstate" \
-             --delete
+        run: |
+          aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude "terraform/*" \
+            --exclude "README.md" \
+            --exclude "CLAUDE.md" \
+            --exclude "*.tfstate" \
+            --delete
 
-      #Step 4 — Invalidate CloudFront cache
+      # Step 4 — Invalidate CloudFront cache
       - name: Invalidate CloudFront cache
         run: |
           aws cloudfront create-invalidation \
             --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
             --paths "/*"
-
-      # Hello from AWS: WhoAmI
-      #- name: Sts GetCallerIdentity
-      #  run: |
-      #    aws sts get-caller-identity
 
       # Step 5 — Confirm deployment
       - name: Deployment complete
