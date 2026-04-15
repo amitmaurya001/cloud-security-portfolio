@@ -1,0 +1,13 @@
+# Terraform state files — never commit these
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/*.tfvars
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/

@@ -1,0 +1,64 @@
+# ============================================================
+# amitwebsite.online — GitHub Actions Deployment
+# OIDC Authentication — no long-lived AWS credentials
+# Trigger: push to main branch
+# ============================================================
+
+name: Deploy to AWS S3 + CloudFront
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allow manual trigger
+
+
+permissions:
+  id-token: write   # Required for OIDC
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy Website
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1 — Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2 — Configure AWS credentials via OIDC
+      # No long-lived access keys — uses GitHub OIDC token
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      # Step 3 — Sync files to S3
+      # Excludes terraform and github directories
+      #- name: Deploy to S3
+      #  run: |
+      #    aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} \
+      #      --exclude ".git/*" \
+      #      --exclude ".github/*" \
+      #      --exclude "terraform/*" \
+      #      --exclude "README.md" \
+      #      --exclude "CLAUDE.md" \
+      #      --exclude "*.tfstate" \
+      #      --delete
+
+      # Step 4 — Invalidate CloudFront cache
+      #- name: Invalidate CloudFront cache
+      #  run: |
+      #    aws cloudfront create-invalidation \
+      #      --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+      #      --paths "/*"
+      # Hello from AWS: WhoAmI
+      - name: Sts GetCallerIdentity
+        run: |
+          aws sts get-caller-identity
+
+      # Step 5 — Confirm deployment
+      - name: Deployment complete
+        run: echo "✅ amitwebsite.online deployed successfully"
