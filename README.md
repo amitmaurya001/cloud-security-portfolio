@@ -1,6 +1,6 @@
 # amitwebsite.online — Personal Portfolio
 
-Personal portfolio website for **Amit Maurya** — Senior Cloud & AI Security Architect.
+Personal portfolio website for **Amit Maurya** — Cloud & AI Security Architect.
 
 🌐 **Live:** [amitwebsite.online](https://amitwebsite.online)
 
